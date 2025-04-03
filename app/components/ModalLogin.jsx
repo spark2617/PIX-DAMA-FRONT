@@ -4,7 +4,7 @@ import { Input } from '@nextui-org/input'
 import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/modal'
 import { Eye, EyeClosed } from '@phosphor-icons/react'
 import React, { useEffect, useState } from 'react'
-import {signUp} from "../api/auth/signUp/signUp"
+import { signUp } from "../api/auth/signUp/signUp"
 import { parseDate } from '@internationalized/date'
 import { DatePicker } from '@nextui-org/react'
 import { I18nProvider } from '@react-aria/i18n'
@@ -31,6 +31,8 @@ function ModalLogin({ tipoModal, isOpen, onOpenChange }) {
     const [confirmaSerMaiorDeIdade, definirCorfirmacaoIdade] = useState(false)
     const [confirmaPreencherCorretamente, definirCofirmacaoDados] = useState(false)
     const [confirmaOsTermos, definirConfirmacaoTermos] = useState(false)
+    const [isLoading, setIsLoading] = useState(false);
+
 
     // Gerencia a validade dos dados
     const [erroMaiorDeIdade, definirErroMaiorDeIdade] = useState(false)
@@ -105,40 +107,42 @@ function ModalLogin({ tipoModal, isOpen, onOpenChange }) {
     }
 
     const criarConta = async (fechar) => {
-        const deMaior = maior18(dataNascimento)
-
+        setIsLoading(true);
+        const deMaior = maior18(dataNascimento);
+    
         const { day, month, year } = dataNascimento;
-
-        console.log(year,month,day)
         const dataFormatada = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-
-        if (CPF == '' || dataFormatada == "2000-01-01" || !confirmaPreencherCorretamente || !confirmaSerMaiorDeIdade) {
+    
+        if (CPF === '' || dataFormatada === "2000-01-01" || !confirmaPreencherCorretamente || !confirmaSerMaiorDeIdade) {
             definirErroRegistro({
                 erro: true,
                 mensagemErro: 'Preencha Corretamente todos os dados'
-            })
-        } else {
-            if (deMaior) {
-                definirErroRegistro({
-                    erro: false
-                })
-                const { sucesso, mensagem } = await signUp(nome, email, senha, CPF, dataFormatada, confirmaOsTermos, confirmaPreencherCorretamente, confirmaSerMaiorDeIdade)
-                
-                console.log(sucesso,mensagem)
-                if (sucesso) {
-                    fechar()
-                } else {
-                    definirErroRegistro({
-                        erro: true,
-                        mensagemErro: mensagem
-                    })
-                }
-            } else {
-                definirErroMaiorDeIdade(true)
-            }
+            });
+            setIsLoading(false);
+            return;
         }
+    
+        if (!deMaior) {
+            definirErroMaiorDeIdade(true);
+            setIsLoading(false);
+            return;
+        }
+    
+        const { sucesso, mensagem } = await signUp(nome, email, senha, CPF, dataFormatada, confirmaOsTermos, confirmaPreencherCorretamente, confirmaSerMaiorDeIdade);
+        if (sucesso) {
+            fechar();
+        } else {
+            definirErroRegistro({
+                erro: true,
+                mensagemErro: mensagem
+            });
+        }
+    
+        setIsLoading(false);
+    };
+    
 
-    }
+
     const logar = async (fechar) => {
         if (!email || !senha) {
             definirErroLogin({
@@ -147,24 +151,26 @@ function ModalLogin({ tipoModal, isOpen, onOpenChange }) {
             });
             return;
         }
-
+    
+        setIsLoading(true);
+    
         const { success, message } = await loginUser(email, senha);
-
+    
         if (!success) {
             definirErroLogin({
                 erro: true,
                 mensagemErro: message || 'Erro ao fazer login'
             });
         } else {
-            definirErroLogin({
-                erro: false,
-                mensagemErro: ''
-            });
+            definirErroLogin({ erro: false, mensagemErro: '' });
             window.location.reload();
             router.push('/');
             fechar();
         }
-    }
+    
+        setIsLoading(false);
+    };
+    
 
     return (
         <Modal isDismissable={false} isOpen={isOpen} onOpenChange={onOpenChange} className="dark" backdrop="blur">
@@ -277,9 +283,10 @@ function ModalLogin({ tipoModal, isOpen, onOpenChange }) {
                                             <Button color="danger" variant="light" onClick={() => { definirEtapaCadastro(1) }}>
                                                 Voltar
                                             </Button>
-                                            <Button color="success" onClick={() => criarConta(onClose)}>
+                                            <Button color="success" isLoading={isLoading} isDisabled={isLoading} onClick={() => criarConta(onClose)}>
                                                 Criar
                                             </Button>
+
                                         </>
                                     )}
                                 </ModalFooter>
@@ -324,9 +331,10 @@ function ModalLogin({ tipoModal, isOpen, onOpenChange }) {
                                     <Button color="danger" variant="light" onPress={onClose}>
                                         Cancelar
                                     </Button>
-                                    <Button color="success" onClick={() => logar(onClose)}>
+                                    <Button color="success" isLoading={isLoading} isDisabled={isLoading} onClick={() => logar(onClose)}>
                                         Entrar
                                     </Button>
+
                                 </ModalFooter>
                             </>
                         )}
