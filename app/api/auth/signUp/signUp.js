@@ -2,7 +2,7 @@
 
 export async function signUp(name, email, password, cpf, birthdate, aceitou_termos, confirmou_dados, confirmou_idade) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/users/signup`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/signup`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
