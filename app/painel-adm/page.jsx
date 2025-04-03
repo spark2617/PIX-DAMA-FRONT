@@ -4,7 +4,7 @@ import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-o
 import { CrownSimple, GearSix, PencilSimple, Users, Wallet } from '@phosphor-icons/react'
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import alterarSenha from '../actions/alterarSenha'
+// import alterarSenha from '../actions/alterarSenha'
 import { checkSession } from '../services/auth'
 import { fetchStatistics } from "../api/admin/getStatistics"
 
@@ -54,7 +54,7 @@ function PainelAdm() {
     }, [router]);
 
     const redefinirSenha = () => {
-        alterarSenha(dadosUsuarios.email);
+        // alterarSenha(dadosUsuarios.email);
         alert('Um link para redefinição da sua senha foi enviado para o seu email!');
     };
 
