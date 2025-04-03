@@ -1,6 +1,6 @@
 'use client'
 
-import { createClient } from "@/utils/supabase/client"
+import { createClient } from "../../utils/supabase/client"
 import { Button } from "@nextui-org/button"
 import { Input } from "@nextui-org/input"
 import { Eye, EyeClosed } from "@phosphor-icons/react"

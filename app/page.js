@@ -57,8 +57,8 @@ export default function Home() {
         <div className="z-10 text-white absolute flex justify-center items-center flex-col text-center gap-5 cursor-pointer px-2" >
           <p className=" font-black text-2xl md:text-5xl">Damas</p>
           <p className="z-10 text-white text-sm md:text-2xl">Desafie sua mente e domine o tabuleiro! Jogue damas online agora e <span className="font-bold">prove sua estratégia</span>!</p>
-          <Button size="sm" radius="full" className="bg-white text-black text-2xl font-black md:hidden" onClick={() => !usuarioAutenticado ? onOpen() : router.push('/game')}>Jogar</Button>
-          <Button size="lg" radius="full" className="bg-white text-black text-2xl font-black hidden md:block" onClick={() => !usuarioAutenticado ? onOpen() : router.push('/game')}>Jogar</Button>
+          <Button size="sm" radius="full" className="bg-white text-black text-2xl font-black md:hidden" onClick={() => !usuarioAutenticado ? onOpen() : ""}>Jogar</Button>
+          <Button size="lg" radius="full" className="bg-white text-black text-2xl font-black hidden md:block" onClick={() => !usuarioAutenticado ? onOpen() : ""}>Jogar</Button>
         </div>
       </div>
 
