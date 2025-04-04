@@ -7,6 +7,8 @@ export async function signUp(name, email, password, cpf, birthdate, aceitou_term
             headers: {
                 "Content-Type": "application/json"
             },
+            credentials: 'include',
+            
             body: JSON.stringify({
                 name,
                 email,
@@ -26,12 +28,15 @@ export async function signUp(name, email, password, cpf, birthdate, aceitou_term
         }
 
         if (data.success === false) {
-            if (data.message.includes(`duplicate key value violates unique constraint "user_cpf_key"`)) {
-                return {
-                    sucesso: false,
-                    mensagem: "CPF já cadastrado"
-                };
-            } else if (data.message.includes("email informado")) {
+            if (data.message) {
+                if(data.message.includes(`duplicate key value violates unique constraint "user_cpf_key"`)){
+                    return {
+                        sucesso: false,
+                        mensagem: "CPF já cadastrado"
+                    };
+                }
+                
+            } else if (data.message.includes("User already exists")) {
                 return {
                     sucesso: false,
                     mensagem: "Foi encontrado uma conta com o email informado"

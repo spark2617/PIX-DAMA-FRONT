@@ -13,29 +13,15 @@ import { useAppContext } from "./context/appContext";
 
 export default function Home() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
-  const { isOpen: isOpenDeposit, onOpen: onOpenDeposit, onOpenChange:onOpenDepositChange } = useDisclosure()
+  const { isOpen: isOpenDeposit, onOpen: onOpenDeposit, onOpenChange: onOpenDepositChange } = useDisclosure()
   const [usuarioAutenticado, definirUsuarioAutenticado] = useState(false)
-  const [dadosUsuarios, definirDadosUsuarios] = useState({})
 
-  const {balance, setBalance} = useAppContext()
-
+  const { balance, setBalance } = useAppContext()
 
   const router = useRouter();
 
-  const verificar = async () => {
-    const { success, data} = await checkSession();
-
-    if (success){
-      definirDadosUsuarios(data);
-      definirUsuarioAutenticado(data.usuarioAutenticado);
-    }
-  }
-
-  console.log(dadosUsuarios)
-
-  useEffect(() => {
-    verificar();
-  }, []);
+  
+    const { dadosUsuarios, definirDadosUsuarios } = useAppContext();
 
 
   return (
@@ -48,7 +34,7 @@ export default function Home() {
             <p>{balance}</p>
           </div>
           <Button size="sm" radius="full" className="bg-white text-black font-black "
-           onClick={onOpenDeposit}>Depositar</Button>
+            onClick={onOpenDeposit}>Depositar</Button>
         </div>
       }
       <div className="w-full flex flex-col items-center justify-center">

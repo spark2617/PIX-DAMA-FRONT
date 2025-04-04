@@ -1,15 +1,14 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
-console.log(API_URL)
 
 export const loginUser = async (email, password) => {
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/signin`, {
+        
+        const response = await fetch(`${ process.env.NEXT_PUBLIC_API_URL}/api/users/signin`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ email, password }),
-            credentials: 'include' // important for cookies
+            credentials: 'include'
         });
 
         const data = await response.json();

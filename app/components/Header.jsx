@@ -9,6 +9,7 @@ import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-o
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { checkSession, logout, resetPassword } from '../services/auth'
+import { useAppContext } from '../context/appContext'
 
 function Header() {
   const router = useRouter()
@@ -23,23 +24,8 @@ function Header() {
   }
 
   const [usuarioAutenticado, definirUsuarioAutenticado] = useState(false)
-  const [dadosUsuarios, definirDadosUsuarios] = useState({})
 
-  const verificarSessao = async () => {
-    const { success, data } = await checkSession();
-    
-    if (success && data) {
-      definirDadosUsuarios(data);
-      definirUsuarioAutenticado(true);
-    } else {
-      definirUsuarioAutenticado(false);
-      definirDadosUsuarios({});
-    }
-  };
-
-  useEffect(() => {
-    verificarSessao();
-  }, []);
+  const {dadosUsuarios, definirDadosUsuarios} = useAppContext();
 
   const fecharSessao = async () => {
     const { success } = await logout();

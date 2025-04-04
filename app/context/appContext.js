@@ -2,7 +2,10 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import {fetchBalance} from "../api/payments/usuario/getBalance"
+import { checkSession } from "../services/auth";
 const AppContext = createContext();
+
+
 
 const formatToBRL = (value) => {
   
@@ -19,30 +22,45 @@ const formatToBRL = (value) => {
 export const AppProvider = ({ children }) => {
   const [balance, setBalance] = useState(null);
 
+  const [dadosUsuarios, definirDadosUsuarios] = useState({})
+
+  function isEmpty(obj) {
+    return Object.keys(obj).length === 0;
+}
+
+  const verificarCookie = async () => {
+    const { success, data} = await checkSession();
+
+    if (success){
+      definirDadosUsuarios(data);
+      definirUsuarioAutenticado(data.usuarioAutenticado);
+    }
+  }
+
+
   useEffect(() => {
-    const loadBalance = async () => {
-      const balance = formatToBRL(await fetchBalance());
-      setBalance(balance);
-    };
-  
-    // Atualiza quando a aba fica visível
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
+    const init = async () => {
+      await verificarCookie();
+      if (!isEmpty(dadosUsuarios)) {
         loadBalance();
       }
     };
-    handleVisibilityChange()
   
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+    init();
     
+    document.addEventListener("visibilitychange", init);
     return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      document.removeEventListener("visibilitychange", init);
     };
   }, []);
   
+  
 
   return (
-    <AppContext.Provider value={{ balance, setBalance }}>
+    <AppContext.Provider value={{ 
+      balance, setBalance ,
+      dadosUsuarios, definirDadosUsuarios,
+      }}>
       {children}
     </AppContext.Provider>
   );
