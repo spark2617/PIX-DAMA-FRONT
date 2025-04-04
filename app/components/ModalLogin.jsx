@@ -182,6 +182,8 @@ function ModalLogin({ tipoModal, isOpen, onOpenChange }) {
 
         const { sucesso, mensagem } = await signUp(nome, email, senha, CPF, dataFormatada, confirmaOsTermos, confirmaPreencherCorretamente, confirmaSerMaiorDeIdade);
         if (sucesso) {
+            window.location.reload();
+            router.push('/');
             fechar();
         } else {
             definirErroRegistro({
@@ -193,7 +195,7 @@ function ModalLogin({ tipoModal, isOpen, onOpenChange }) {
         setIsLoading(false);
     };
 
-
+    
 
     const logar = async (fechar) => {
         if (!email || !senha) {

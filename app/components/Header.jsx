@@ -27,6 +27,22 @@ function Header() {
 
   const {dadosUsuarios, definirDadosUsuarios} = useAppContext();
 
+  const verificarSessao = async () => {
+    const { success, data } = await checkSession();
+    
+    if (success && data) {
+      definirDadosUsuarios(data);
+      definirUsuarioAutenticado(true);
+    } else {
+      definirUsuarioAutenticado(false);
+      definirDadosUsuarios({});
+    }
+  };
+
+  useEffect(() => {
+    verificarSessao();
+  }, []);
+
   const fecharSessao = async () => {
     const { success } = await logout();
 

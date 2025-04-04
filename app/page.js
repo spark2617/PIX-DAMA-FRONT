@@ -14,14 +14,14 @@ import { useAppContext } from "./context/appContext";
 export default function Home() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
   const { isOpen: isOpenDeposit, onOpen: onOpenDeposit, onOpenChange: onOpenDepositChange } = useDisclosure()
-  const [usuarioAutenticado, definirUsuarioAutenticado] = useState(false)
+  
 
   const { balance, setBalance } = useAppContext()
 
   const router = useRouter();
 
   
-    const { dadosUsuarios, definirDadosUsuarios } = useAppContext();
+    const { dadosUsuarios, definirDadosUsuarios, usuarioAutenticado, definirUsuarioAutenticado } = useAppContext();
 
 
   return (

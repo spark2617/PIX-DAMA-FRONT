@@ -1,66 +1,67 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState } from "react";
-import {fetchBalance} from "../api/payments/usuario/getBalance"
+import { fetchBalance } from "../api/payments/usuario/getBalance"
 import { checkSession } from "../services/auth";
 const AppContext = createContext();
 
 
 
 const formatToBRL = (value) => {
-  
+
   if (typeof value !== "number" || isNaN(value)) {
     return "R$ 0,00";
-}
+  }
 
   return value.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
+    style: "currency",
+    currency: "BRL",
   });
 };
 
 export const AppProvider = ({ children }) => {
   const [balance, setBalance] = useState(null);
 
+
   const [dadosUsuarios, definirDadosUsuarios] = useState({})
+  const [usuarioAutenticado, definirUsuarioAutenticado] = useState(false)
 
   function isEmpty(obj) {
     return Object.keys(obj).length === 0;
-}
-
-  const verificarCookie = async () => {
-    const { success, data} = await checkSession();
-
-    if (success){
-      definirDadosUsuarios(data);
-      definirUsuarioAutenticado(data.usuarioAutenticado);
-    }
   }
 
-
   useEffect(() => {
+
+    const loadBalance = async () => {
+      const balance = formatToBRL(await fetchBalance());
+      setBalance(balance);
+    };
+
+    definirUsuarioAutenticado(!isEmpty(dadosUsuarios))
+
     const init = async () => {
-      await verificarCookie();
+      
       if (!isEmpty(dadosUsuarios)) {
-        loadBalance();
+       await loadBalance();
       }
     };
-  
+
     init();
-    
+
     document.addEventListener("visibilitychange", init);
     return () => {
       document.removeEventListener("visibilitychange", init);
     };
-  }, []);
-  
-  
+  }, [dadosUsuarios]);
+
+
 
   return (
-    <AppContext.Provider value={{ 
-      balance, setBalance ,
+    <AppContext.Provider value={{
+      balance, setBalance,
       dadosUsuarios, definirDadosUsuarios,
-      }}>
+      usuarioAutenticado, definirDadosUsuarios
+    }}>
       {children}
     </AppContext.Provider>
   );

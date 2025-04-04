@@ -2,7 +2,7 @@
 export const loginUser = async (email, password) => {
     try {
         
-        const response = await fetch(`${ process.env.NEXT_PUBLIC_API_URL}/api/users/signin`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/signin`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -35,7 +35,7 @@ export const loginUser = async (email, password) => {
 
 export const checkSession = async () => {
     try {
-        const response = await fetch(`${API_URL}/api/users/session`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/session`, {
             credentials: 'include'
         });
 
@@ -68,7 +68,7 @@ export const checkSession = async () => {
 
 export const logout = async () => {
     try {
-        const response = await fetch(`${API_URL}/api/users/signout`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/signout`, {
             method: 'POST',
             credentials: 'include'
         });
@@ -92,7 +92,7 @@ export const logout = async () => {
 
 export const resetPassword = async (email) => {
     try {
-        const response = await fetch(`${API_URL}/api/user/reset-password`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/reset-password`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
