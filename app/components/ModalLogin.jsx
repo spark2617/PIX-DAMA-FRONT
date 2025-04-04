@@ -2,10 +2,9 @@
 import { Button } from '@nextui-org/button'
 import { Input } from '@nextui-org/input'
 import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/modal'
-import { Eye, EyeClosed } from '@phosphor-icons/react'
+import { Eye, EyeClosed, Password } from '@phosphor-icons/react'
 import React, { useEffect, useState } from 'react'
-// import { entrar } from '../actions/entrar'
-import {signUp} from "../api/auth/signUp/signUp"
+import { signUp } from "../api/auth/signUp/signUp"
 import { parseDate } from '@internationalized/date'
 import { DatePicker } from '@nextui-org/react'
 import { I18nProvider } from '@react-aria/i18n'
@@ -32,6 +31,8 @@ function ModalLogin({ tipoModal, isOpen, onOpenChange }) {
     const [confirmaSerMaiorDeIdade, definirCorfirmacaoIdade] = useState(false)
     const [confirmaPreencherCorretamente, definirCofirmacaoDados] = useState(false)
     const [confirmaOsTermos, definirConfirmacaoTermos] = useState(false)
+    const [isLoading, setIsLoading] = useState(false);
+
 
     // Gerencia a validade dos dados
     const [erroMaiorDeIdade, definirErroMaiorDeIdade] = useState(false)
@@ -65,7 +66,39 @@ function ModalLogin({ tipoModal, isOpen, onOpenChange }) {
 
         definirCPF(cpf);
     }
+    function isValidEmail(email) {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    }
 
+    function isValidCPF(cpf) {
+        cpf = cpf.replace(/\D/g, ''); // Remove caracteres não numéricos
+        
+        if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
+            return false; // Verifica se tem 11 dígitos e se não são todos iguais
+        }
+    
+        let soma = 0, resto;
+    
+        // Validação do primeiro dígito verificador
+        for (let i = 0; i < 9; i++) {
+            soma += parseInt(cpf[i]) * (10 - i);
+        }
+        resto = (soma * 10) % 11;
+        if (resto === 10 || resto === 11) resto = 0;
+        if (resto !== parseInt(cpf[9])) return false;
+    
+        // Validação do segundo dígito verificador
+        soma = 0;
+        for (let i = 0; i < 10; i++) {
+            soma += parseInt(cpf[i]) * (11 - i);
+        }
+        resto = (soma * 10) % 11;
+        if (resto === 10 || resto === 11) resto = 0;
+        if (resto !== parseInt(cpf[10])) return false;
+    
+        return true;
+    }
 
     useEffect(() => {
         const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -106,40 +139,62 @@ function ModalLogin({ tipoModal, isOpen, onOpenChange }) {
     }
 
     const criarConta = async (fechar) => {
-        const deMaior = maior18(dataNascimento)
+        setIsLoading(true);
+        const deMaior = maior18(dataNascimento);
 
         const { day, month, year } = dataNascimento;
-
-        console.log(year,month,day)
         const dataFormatada = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
-        if (CPF == '' || dataFormatada == "2000-01-01" || !confirmaPreencherCorretamente || !confirmaSerMaiorDeIdade) {
+        if (CPF === '' || dataFormatada === "2000-01-01" || !confirmaPreencherCorretamente || !confirmaSerMaiorDeIdade) {
             definirErroRegistro({
                 erro: true,
                 mensagemErro: 'Preencha Corretamente todos os dados'
-            })
-        } else {
-            if (deMaior) {
-                definirErroRegistro({
-                    erro: false
-                })
-                const { sucesso, mensagem } = await signUp(nome, email, senha, CPF, dataFormatada, confirmaOsTermos, confirmaPreencherCorretamente, confirmaSerMaiorDeIdade)
-                
-                console.log(sucesso,mensagem)
-                if (sucesso) {
-                    fechar()
-                } else {
-                    definirErroRegistro({
-                        erro: true,
-                        mensagemErro: mensagem
-                    })
-                }
-            } else {
-                definirErroMaiorDeIdade(true)
-            }
+            });
+            setIsLoading(false);
+            return;
         }
 
-    }
+        if (!deMaior) {
+            definirErroMaiorDeIdade(true);
+            setIsLoading(false);
+            return;
+        }
+
+        if (!isValidEmail(email)) {
+            definirErroRegistro({
+                erro: true,
+                mensagemErro: 'Email invalido'
+            });
+            setIsLoading(false);
+            return;
+        }
+
+        if(!isValidCPF(CPF)){
+            definirErroRegistro({
+                erro: true,
+                mensagemErro: 'CPF invalido'
+            });
+            setIsLoading(false);
+            return;
+        }
+
+        
+
+        const { sucesso, mensagem } = await signUp(nome, email, senha, CPF, dataFormatada, confirmaOsTermos, confirmaPreencherCorretamente, confirmaSerMaiorDeIdade);
+        if (sucesso) {
+            fechar();
+        } else {
+            definirErroRegistro({
+                erro: true,
+                mensagemErro: mensagem
+            });
+        }
+
+        setIsLoading(false);
+    };
+
+
+
     const logar = async (fechar) => {
         if (!email || !senha) {
             definirErroLogin({
@@ -149,6 +204,7 @@ function ModalLogin({ tipoModal, isOpen, onOpenChange }) {
             return;
         }
 
+        setIsLoading(true);
         const { success, message } = await loginUser(email, senha);
 
         if (!success) {
@@ -157,15 +213,15 @@ function ModalLogin({ tipoModal, isOpen, onOpenChange }) {
                 mensagemErro: message || 'Erro ao fazer login'
             });
         } else {
-            definirErroLogin({
-                erro: false,
-                mensagemErro: ''
-            });
+            definirErroLogin({ erro: false, mensagemErro: '' });
             window.location.reload();
             router.push('/');
             fechar();
         }
-    }
+
+        setIsLoading(false);
+    };
+
 
     return (
         <Modal isDismissable={false} isOpen={isOpen} onOpenChange={onOpenChange} className="dark" backdrop="blur">
@@ -278,9 +334,10 @@ function ModalLogin({ tipoModal, isOpen, onOpenChange }) {
                                             <Button color="danger" variant="light" onClick={() => { definirEtapaCadastro(1) }}>
                                                 Voltar
                                             </Button>
-                                            <Button color="success" onClick={() => criarConta(onClose)}>
+                                            <Button color="success" isLoading={isLoading} isDisabled={isLoading} onClick={() => criarConta(onClose)}>
                                                 Criar
                                             </Button>
+
                                         </>
                                     )}
                                 </ModalFooter>
@@ -325,9 +382,10 @@ function ModalLogin({ tipoModal, isOpen, onOpenChange }) {
                                     <Button color="danger" variant="light" onPress={onClose}>
                                         Cancelar
                                     </Button>
-                                    <Button color="success" onClick={() => logar(onClose)}>
+                                    <Button color="success" isLoading={isLoading} isDisabled={isLoading} onClick={() => logar(onClose)}>
                                         Entrar
                                     </Button>
+
                                 </ModalFooter>
                             </>
                         )}
