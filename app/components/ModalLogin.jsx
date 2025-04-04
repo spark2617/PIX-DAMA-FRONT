@@ -4,7 +4,7 @@ import { Input } from '@nextui-org/input'
 import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/modal'
 import { Eye, EyeClosed } from '@phosphor-icons/react'
 import React, { useEffect, useState } from 'react'
-import { entrar } from '../actions/entrar'
+// import { entrar } from '../actions/entrar'
 import {signUp} from "../api/auth/signUp/signUp"
 import { parseDate } from '@internationalized/date'
 import { DatePicker } from '@nextui-org/react'
