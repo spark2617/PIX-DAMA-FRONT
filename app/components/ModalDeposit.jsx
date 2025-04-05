@@ -38,8 +38,8 @@ const DepositModal = ({ isOpen, onOpenChange }) => {
 
         const formattedAmount = parseFloat(amountStr);
 
-        if (isNaN(formattedAmount) || formattedAmount < 10) {
-            setError("O valor mínimo para depósito é R$ 10,00.");
+        if (isNaN(formattedAmount) || formattedAmount < 5) {
+            setError("O valor mínimo para depósito é R$ 5,00.");
             return;
         }
         

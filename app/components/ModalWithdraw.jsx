@@ -43,8 +43,8 @@ const CashOutModal = ({ isOpen, onOpenChange }) => {
         const balanceStr = balance.replace(/[^\d,]/g, "").replace(",", ".");
         const formattedbalance = parseFloat(balanceStr);
     
-        if (isNaN(formattedAmount) || formattedAmount < 10) {
-            setError("O valor mínimo para saque é R$ 10,00.");
+        if (isNaN(formattedAmount) || formattedAmount < 5) {
+            setError("O valor mínimo para saque é R$ 5,00.");
             return;
         }
         

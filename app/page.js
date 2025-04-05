@@ -23,6 +23,7 @@ export default function Home() {
   
     const { dadosUsuarios, definirDadosUsuarios, usuarioAutenticado, definirUsuarioAutenticado } = useAppContext();
 
+    console.log(dadosUsuarios)
 
   return (
     <main className="flex min-h-screen flex-col items-center px-2 py-9 md:px-10 gap-10">

@@ -12,7 +12,7 @@ import { checkSession } from '../services/auth'
 import { useAppContext } from '../context/appContext'
 import ModalDeposit from "../components/ModalDeposit"
 import ModalWithdraw from "../components/ModalWithdraw"
-
+import {getQuantMatchAfterDeposit} from "../api/payments/usuario/getMatchAfterDeposit"
 function painelUsuario() {
     const [usuarioAutenticado, definirUsuarioAutenticado] = useState(false)
     const [dadosUsuarios, definirDadosUsuarios] = useState({})
@@ -24,6 +24,18 @@ function painelUsuario() {
     const { isOpen: isOpenWithdraw, onOpen:onOpenWithdraw, onOpenChange:onOpenChargenWithdraw } = useDisclosure()
 
     const {balance, setBalance} = useAppContext()
+
+    const openModal = async ()=>{
+        const quantMatchs = await getQuantMatchAfterDeposit();
+
+        console.log(quantMatchs)
+
+        if(quantMatchs>=5){
+            onOpenWithdraw()
+        }else{
+            window.alert("Você precisa jogar pelo menos 5 partidas após o último depósito para poder sacar.");
+        }
+    }
     
 
     useEffect(() => {
@@ -80,7 +92,7 @@ function painelUsuario() {
                         </div>
                         <div className='w-full flex flex-col gap-3' >
                             <Button className='w-full bg-white text-black' variant='solid' onClick={onOpen} >DEPOSITAR</Button>
-                            <Button className='w-full' variant='bordered'>SACAR</Button>
+                            <Button className='w-full' variant='bordered' onClick={openModal}>SACAR</Button>
                         </div>
 
                         <div className="flex items-center w-full justify-between">
@@ -121,7 +133,7 @@ function painelUsuario() {
                         <div className="flex items-start">
                             <div className='flex gap-3' >
                                 <Button className='w-full bg-white text-black' variant='solid' onClick={onOpen} >DEPOSITAR</Button>
-                                <Button className='w-full' variant='bordered' onClick={onOpenWithdraw}>SACAR</Button>
+                                <Button className='w-full' variant='bordered' onClick={openModal}>SACAR</Button>
                             </div>
                         </div>
 
