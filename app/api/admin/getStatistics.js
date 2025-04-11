@@ -17,3 +17,5 @@ export async function fetchStatistics() {
         return null;
     }
 }
+
+

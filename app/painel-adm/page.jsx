@@ -7,8 +7,11 @@ import { useRouter } from 'next/navigation'
 // import alterarSenha from '../actions/alterarSenha'
 import { checkSession } from '../services/auth'
 import { fetchStatistics } from "../api/admin/getStatistics"
+import { Button } from '@nextui-org/button'
+
 
 function PainelAdm() {
+
     const [usuarioAutenticado, setUsuarioAutenticado] = useState(false)
     const [dadosUsuarios, setDadosUsuarios] = useState({})
     const [loading, setLoading] = useState(true);
@@ -24,6 +27,7 @@ function PainelAdm() {
                 const data = await fetchStatistics();
                 if (data) {
                     setStatistics(data);
+                    setError(null);
                 } else {
                     setError("Erro ao buscar estatísticas.");
                 }
@@ -33,9 +37,19 @@ function PainelAdm() {
                 setLoading(false);
             }
         }
-
+    
+        // Chamada inicial
         getStats();
+    
+        // Intervalo a cada 60 segundos
+        const interval = setInterval(() => {
+            getStats();
+        }, 60000); // 60000ms = 1 minuto
+    
+        // Limpa o intervalo quando o componente desmonta
+        return () => clearInterval(interval);
     }, []);
+    
 
     // Verificar sessão do usuário
     useEffect(() => {
@@ -66,6 +80,34 @@ function PainelAdm() {
         totalFee = 0,
         monthlyFee = 0
     } = statistics || {};
+
+    const handleSacarTaxa = async () => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/zerar-balance-admin`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include"
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || "Erro ao sacar taxa.");
+            }
+
+            alert("✅ " + result.message);
+
+            // Recarregar estatísticas
+            const data = await fetchStatistics();
+            if (data) setStatistics(data);
+
+        } catch (err) {
+            alert("❌ Erro ao sacar taxa: " + err.message);
+        }
+    };
+
 
     return (
         <main className='flex min-h-screen flex-col items-center px-2 py-9 md:px-16 gap-5 text-white'>
@@ -120,13 +162,25 @@ function PainelAdm() {
                                 </div>
                             </div>
                             <div className='w-full flex flex-col gap-2 md:flex-row'>
-                                <div className='w-full py-6 px-4 md:w-auto grow border-stone-600 border-2 rounded-2xl flex items-center gap-5'>
-                                    <Wallet size={32} weight="duotone" />
-                                    <div>
-                                        <h2 className='font-bold text-xl'>Taxa Total Arrecadada</h2>
-                                        <p className='text-xl'>R$ {totalFee.toFixed(2)}</p>
+                                <div className='w-full py-6 px-4 md:w-auto grow border-stone-600 border-2 rounded-2xl flex flex-col gap-3'>
+                                    <div className='flex items-center gap-5'>
+                                        <Wallet size={32} weight="duotone" />
+                                        <div>
+                                            <h2 className='font-bold text-xl'>Taxa Total Arrecadada</h2>
+                                            <p className='text-xl'>R$ {totalFee.toFixed(2)}</p>
+                                        </div>
                                     </div>
+                                    <Button
+                                        onClick={handleSacarTaxa}
+                                        color='primary'
+                                        className='w-full md:w-auto bg-blue-600 text-white rounded-xl mt-2'
+                                    >
+                                        Sacar Taxa
+                                    </Button>
+
+
                                 </div>
+
                                 <div className='w-full py-6 px-4 md:w-auto grow border-stone-600 border-2 rounded-2xl flex items-center gap-5'>
                                     <Wallet size={32} weight="duotone" />
                                     <div>
